@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>دعاء السفر</title>
+    <style>
+        :root {
+            --main-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #f5f6fa;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --border-radius: 15px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Amiri', serif;
+            background: url('https://www.transparenttextures.com/patterns/arabesque.png'), var(--background-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: var(--card-background);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: url('https://www.transparenttextures.com/patterns/arabesque.png');
+            opacity: 0.1;
+            z-index: -1;
+            border-radius: var(--border-radius);
+        }
+
+        h1 {
+            font-size: 28px;
+            color: var(--main-color);
+            margin-bottom: 20px;
+        }
+
+        .duaa-text {
+            font-size: 20px;
+            line-height: 1.8;
+            color: var(--text-color);
+            text-align: right;
+            direction: rtl;
+        }
+
+        .duaa-text::before {
+            content: '﴿';
+            font-size: 24px;
+            color: var(--secondary-color);
+            margin-right: 10px;
+        }
+
+        .duaa-text::after {
+            content: '﴾';
+            font-size: 24px;
+            color: var(--secondary-color);
+            margin-left: 10px;
+        }
+
+        .duaa-text p {
+            margin: 15px 0;
+        }
+
+        .duaa-text p:first-child {
+            margin-top: 0;
+        }
+
+        .duaa-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: var(--main-color);
+        }
+
+        .footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>دعاء السفر</h1>
+        <div class="duaa-text">
+            <p>اللهم إنا نسألك في سفرنا هذا البر والتقوى ومن العمل ما ترضى</p>
+            <p>اللهم هون علينا سفرنا هذا واطو عنا بعده</p>
+            <p>اللهم أنت الصاحب في السفر والخليفة في الأهل</p>
+            <p>اللهم إني أعوذ بك من وعثاء السفر وكآبة المنقلب وسوء المنظر في الأهل والمال</p>
+            <p>آيبون تائبون عابدون ولربنا حامدون</p>
+        </div>
+        <div class="footer">
+            <p>نتمنى لك سفرًا آمنًا ومريحًا</p>
+            <a href="anothersite.html">العودة إلى الصفحة الرئيسية</a>
+        </div>
+    </div>
+</body>
+</html>

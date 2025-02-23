@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام الطقس الذكي</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --secondary-color: #3b82f6;
+      --background: #f8fafc;
+      --text-color: #1e293b;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      direction: rtl;
+      background-color: var(--background);
+      margin: 0;
+      padding: 20px;
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+    .location-options {
+      max-width: 800px;
+      margin: 30px auto;
+      position: relative;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .search-container {
+      position: relative;
+      width: 100%;
+    }
+    #cityInput {
+      width: 100%;
+      padding: 12px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 50px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    .suggestions-list {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      left: 0;
+      background: white;
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+    .suggestion-item {
+      padding: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .suggestion-item:hover {
+      background: #f1f5f9;
+    }
+    #mapToggleBtn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+      z-index: 1;
+    }
+    #mapToggleBtn:hover {
+      background: var(--secondary-color);
+    }
+    #map {
+      height: 300px;
+      border-radius: 16px;
+      margin: 1rem 0;
+      position: absolute;
+      width: 100%;
+      top: 100%;
+      z-index: 2000;
+      background: white;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      display: none;
+    }
+    .select-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 1rem;
+      position: relative;
+    }
+    /* شريط اختيار الأيام الديناميكي */
+    select#daySelect {
+      padding: 12px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 50px;
+      background: white;
+      font-size: 16px;
+      appearance: none;
+      direction: rtl;
+      flex: 1;
+    }
+    /* اختيار الساعة */
+    select#hourSelect, select#minuteSelect {
+      padding: 12px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 50px;
+      background: white;
+      font-size: 16px;
+      appearance: none;
+      direction: rtl;
+      flex: 1;
+    }
+    .weather-card {
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      color: white;
+      padding: 2rem;
+      border-radius: 16px;
+      margin-top: 2rem;
+    }
+    .weather-info {
+      font-size: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .weather-info p {
+      margin: 0;
+      padding: 0.5rem 0;
+    }
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #1e40af;
+    }
+    label {
+      display: block;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      color: #374151;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .time-preset {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+    }
+    #addCurrentTime {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .select-group {
+        flex-direction: column;
+      }
+      select, #cityInput {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="location-options">
+      <div class="card">
+        <h3>البحث عن مدينة</h3>
+        <div class="search-container">
+          <input type="text" id="cityInput" placeholder="اكتب اسم المدينة...">
+          <div class="suggestions-list" id="suggestionsList"></div>
+        </div>
+      </div>
+      <button class="btn" id="mapToggleBtn">فتح الخريطة</button>
+      <div id="map" class="card"></div>
+    </div>
+
+    <!-- شريط اختيار اليوم (ديناميكي) مع خيارات الساعة والدقيقة -->
+    <div class="card">
+      <label>اختر التاريخ والوقت</label>
+      <div class="select-group">
+        <select id="daySelect">
+          <option value="" disabled selected>اختر اليوم</option>
+        </select>
+        <select id="hourSelect">
+          <option value="" disabled selected>اختر الساعة</option>
+        </select>
+        <select id="minuteSelect">
+          <option value="" disabled selected>اختر الدقيقة</option>
+        </select>
+      </div>
+      <div class="time-preset">
+        <button id="addCurrentTime">إضافة الوقت الحالي</button>
+      </div>
+    </div>
+
+    <button class="btn" id="weatherButton">عرض الطقس</button>
+
+    <!-- صندوق توقعات الطقس (لم يتم تغييره) -->
+    <div id="weatherBox" class="weather-card hidden">
+      <h3>التوقعات الجوية</h3>
+      <div id="weatherInfo" class="weather-info"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let lat = null;
+    let lon = null;
+    let map = null;
+    let marker = null;
+    let searchTimeout = null;
+
+    const weatherCodeMap = {
+      0: 'مشمس',
+      1: 'غائم جزئيًا',
+      45: 'ضباب',
+      48: 'ضباب متجمد',
+      51: 'رذاذ خفيف',
+      53: 'رذاذ متوسط',
+      55: 'رذاذ كثيف',
+      56: 'رذاذ متجمد خفيف',
+      57: 'رذاذ متجمد كثيف',
+      61: 'أمطار خفيفة',
+      63: 'أمطار متوسطة',
+      65: 'أمطار غزيرة',
+      66: 'أمطار متجمدة',
+      71: 'ثلوج خفيفة',
+      73: 'ثلوج متوسطة',
+      75: 'ثلوج غزيرة',
+      77: 'حبوب ثلجية',
+      80: 'زخات مطرية خفيفة',
+      81: 'زخات مطرية متوسطة',
+      85: 'زخات ثلجية خفيفة',
+      86: 'زخات ثلجية غزيرة',
+      95: 'عاصفة رعدية',
+      96: 'عاصفة مع برد خفيف',
+      99: 'عاصفة مع برد شديد'
+    };
+
+    // تعبئة شريط اختيار الأيام من يوم سابق لليوم الحالي وحتى 30 يوم قادمة
+    function initDaySelectOptions() {
+      const select = document.getElementById('daySelect');
+      select.innerHTML = `<option value="" disabled selected>اختر اليوم</option>`;
+      const now = new Date();
+      // بداية القائمة: اليوم السابق
+      const startDate = new Date(now);
+      startDate.setDate(now.getDate() - 1);
+      // إنشاء 31 خيار (من اليوم السابق إلى اليوم + 30)
+      const monthNames = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+      for (let i = 0; i <= 30; i++) {
+        const optionDate = new Date(startDate);
+        optionDate.setDate(startDate.getDate() + i);
+        const year = optionDate.getFullYear();
+        const month = (optionDate.getMonth() + 1).toString().padStart(2, '0');
+        const day = optionDate.getDate().toString().padStart(2, '0');
+        const value = `${year}-${month}-${day}`;  // قيمة بصيغة ISO
+        const text = `${day} ${monthNames[optionDate.getMonth()]}`; // نص العرض (مثلاً: "22 فبراير")
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = text;
+        select.appendChild(option);
+      }
+    }
+
+    // تعبئة شريطي اختيار الساعة والدقيقة (من 0 إلى 23 و 0 إلى 59)
+    function initTimeSelectOptions() {
+      const hourSelect = document.getElementById('hourSelect');
+      const minuteSelect = document.getElementById('minuteSelect');
+      hourSelect.innerHTML = `<option value="" disabled selected>اختر الساعة</option>`;
+      minuteSelect.innerHTML = `<option value="" disabled selected>اختر الدقيقة</option>`;
+      for (let i = 0; i < 24; i++) {
+        const option = document.createElement('option');
+        // عرض الساعة بصيغة "HH:00"
+        option.value = `${i.toString().padStart(2, '0')}:00`;
+        option.textContent = `${i.toString().padStart(2, '0')}:00`;
+        hourSelect.appendChild(option);
+      }
+      for (let i = 0; i < 60; i++) {
+        const option = document.createElement('option');
+        option.value = i.toString().padStart(2, '0');
+        option.textContent = i.toString().padStart(2, '0');
+        minuteSelect.appendChild(option);
+      }
+    }
+
+    // عند الضغط على "إضافة الوقت الحالي" يتم ضبط الخيارات بناءً على تاريخ ووقت النظام
+    function setCurrentTime() {
+      const now = new Date();
+      // ضبط اليوم: نستخدم تاريخ اليوم بصيغة ISO
+      const year = now.getFullYear();
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const day = now.getDate().toString().padStart(2, '0');
+      const todayStr = `${year}-${month}-${day}`;
+      document.getElementById('daySelect').value = todayStr;
+      // ضبط الساعة والدقيقة
+      const hour = now.getHours().toString().padStart(2, '0') + ":00";
+      document.getElementById('hourSelect').value = hour;
+      document.getElementById('minuteSelect').value = now.getMinutes().toString().padStart(2, '0');
+    }
+
+    document.getElementById('cityInput').addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const searchText = e.target.value.trim();
+        if (searchText.length > 0) fetchSuggestions(searchText);
+      }, 300);
+    });
+
+    async function fetchSuggestions(searchText) {
+      try {
+        const response = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${searchText}&count=5&language=ar`
+        );
+        const data = await response.json();
+        showSuggestions(data.results || []);
+      } catch (error) {
+        console.error('خطأ في جلب الاقتراحات:', error);
+      }
+    }
+
+    function showSuggestions(cities) {
+      const list = document.getElementById('suggestionsList');
+      list.innerHTML = '';
+      cities.forEach(city => {
+        const div = document.createElement('div');
+        div.className = 'suggestion-item';
+        div.textContent = `${city.name}, ${city.country}`;
+        div.onclick = () => selectCity(city);
+        list.appendChild(div);
+      });
+      list.style.display = cities.length ? 'block' : 'none';
+    }
+
+    function selectCity(city) {
+      lat = city.latitude;
+      lon = city.longitude;
+      document.getElementById('cityInput').value = city.name;
+      document.getElementById('suggestionsList').style.display = 'none';
+      document.getElementById('weatherBox').classList.remove('hidden');
+    }
+
+    async function getCityName(lat, lon) {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ar`
+        );
+        const data = await response.json();
+        return data.address.city || data.address.town || data.address.village || data.address.county;
+      } catch (error) {
+        console.error('خطأ في جلب اسم المدينة:', error);
+        return 'موقع غير معروف';
+      }
+    }
+
+    function initMap() {
+      if (!map) {
+        map = L.map('map').setView([24.7136, 46.6753], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        map.on('click', async (e) => {
+          if (marker) map.removeLayer(marker);
+          marker = L.marker(e.latlng).addTo(map);
+          lat = e.latlng.lat;
+          lon = e.latlng.lng;
+          const cityName = await getCityName(lat, lon);
+          document.getElementById('cityInput').value = cityName;
+          document.getElementById('weatherBox').classList.remove('hidden');
+        });
+      }
+    }
+
+    function toggleMap() {
+      const btn = document.getElementById('mapToggleBtn');
+      const mapDiv = document.getElementById('map');
+      if (mapDiv.style.display === 'none') {
+        mapDiv.style.display = 'block';
+        btn.textContent = 'إغلاق الخريطة';
+        if (!map) initMap();
+        setTimeout(() => {
+          map.invalidateSize(true);
+          map.setView([24.7136, 46.6753], 5);
+        }, 100);
+      } else {
+        mapDiv.style.display = 'none';
+        btn.textContent = 'فتح الخريطة';
+      }
+    }
+
+    // دالة جلب توقعات الطقس للساعة المحددة فقط
+    async function getWeather() {
+      if (!lat || !lon) {
+        alert('الرجاء تحديد الموقع أولاً');
+        return;
+      }
+      const button = document.getElementById('weatherButton');
+      button.disabled = true;
+      button.textContent = 'جاري التحميل...';
+      try {
+        // الحصول على التاريخ من شريط الأيام (المختزن بصيغة YYYY-MM-DD)
+        const selectedDateStr = document.getElementById('daySelect').value;
+        // الحصول على الساعة والدقيقة المختارتين
+        const selectedHour = document.getElementById('hourSelect').value.split(':')[0];
+        const selectedMinute = document.getElementById('minuteSelect').value;
+        // بناء سلسلة التاريخ والوقت
+        const dateTimeStr = `${selectedDateStr}T${selectedHour.padStart(2, '0')}:${selectedMinute.padStart(2, '0')}:00`;
+        const selectedDateTime = new Date(dateTimeStr);
+
+        // جلب توقعات الطقس بالساعة من Open‑Meteo
+        const response = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m,precipitation&timezone=auto`
+        );
+        const data = await response.json();
+        const closest = findClosestHour(data.hourly.time, selectedDateTime);
+        displayWeather(data, closest);
+      } catch (error) {
+        console.error('خطأ في جلب البيانات:', error);
+        document.getElementById('weatherInfo').textContent = 'حدث خطأ في جلب البيانات';
+      } finally {
+        button.disabled = false;
+        button.textContent = 'عرض الطقس';
+      }
+    }
+
+    // دالة إيجاد أقرب ساعة من القائمة بالنسبة للوقت المطلوب
+    function findClosestHour(times, target) {
+      const targetTime = target.getTime();
+      return times.reduce((closest, time, index) => {
+        const diff = Math.abs(new Date(time).getTime() - targetTime);
+        return diff < closest.diff ? { index, diff } : closest;
+      }, { index: 0, diff: Infinity }).index;
+    }
+
+    // دالة عرض التوقعات في صندوق الطقس (لم يتم تغييره)
+    function displayWeather(data, index) {
+      const infoDiv = document.getElementById('weatherInfo');
+      infoDiv.innerHTML = `
+        <p>التاريخ: ${new Date(data.hourly.time[index]).toLocaleDateString('ar-EG')}</p>
+        <p>ــــــــــــــــــــــــــــــــــــــــــــــ</p>
+        <p>الوقت: ${new Date(data.hourly.time[index]).toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'})}</p>
+        <p>ــــــــــــــــــــــــــــــــــــــــــــــ</p>
+        <p>درجة الحرارة: ${data.hourly.temperature_2m[index]}°C</p>
+        <p>ــــــــــــــــــــــــــــــــــــــــــــــ</p>
+        <p>الحالة الجوية: ${weatherCodeMap[data.hourly.weathercode[index]] || 'غير معروف'}</p>
+        <p>ــــــــــــــــــــــــــــــــــــــــــــــ</p>
+        <p>سرعة الرياح: ${data.hourly.windspeed_10m[index]} km/h</p>
+        <p>ــــــــــــــــــــــــــــــــــــــــــــــ</p>
+        <p>الرطوبة: ${data.hourly.relativehumidity_2m[index]}%</p>
+        <p>ــــــــــــــــــــــــــــــــــــــــــــــ</p>
+        <p>هطول الأمطار: ${data.hourly.precipitation[index]} mm</p>
+      `;
+    }
+
+    window.onload = () => {
+      initDaySelectOptions();
+      initTimeSelectOptions();
+      document.getElementById('mapToggleBtn').addEventListener('click', toggleMap);
+      document.getElementById('addCurrentTime').addEventListener('click', setCurrentTime);
+      document.getElementById('weatherButton').addEventListener('click', getWeather);
+      document.getElementById('map').style.display = 'none';
+    };
+  </script>
+</body>
+</html>

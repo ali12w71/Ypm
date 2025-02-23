@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJAJ - الصفحة الرئيسية</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --background-color: #f8fafc;
+            --text-color: #1e293b;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            direction: rtl;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+        }
+        .banner {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 24px;
+            padding: 20px 0;
+            font-weight: bold;
+            box-shadow: var(--box-shadow);
+        }
+        .container {
+            margin-top: 50px;
+            padding: 20px;
+        }
+        .box {
+            width: 220px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            margin: 15px auto;
+            border-radius: 12px;
+            text-decoration: none;
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: var(--box-shadow);
+        }
+        .box:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        @media (max-width: 768px) {
+            .banner {
+                font-size: 20px;
+                padding: 15px 0;
+            }
+            .box {
+                width: 90%;
+                padding: 15px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="banner">ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴀᴊᴀᴊ</div>
+
+    <div class="container">
+        <a href="yoursite.html" class="box">المدينة</a>
+        <a href="anothersite.html" class="box">السفر</a>
+    </div>
+
+</body>
+</html>
