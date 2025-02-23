@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>نظام السفر الذكي</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --main-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #f5f6fa;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --border-radius: 15px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-background);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .header {
+            background: var(--main-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 28px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+        }
+
+        .map-button {
+            margin: 10px auto;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, var(--secondary-color), #2980b9);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            display: block;
+            font-size: 18px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .map-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #map {
+            width: 100%;
+            height: 450px;
+            margin: 20px auto;
+            display: none;
+            border-radius: var(--border-radius);
+            border: 2px solid var(--main-color);
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-box {
+            background: var(--card-background);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: 1px solid #eee;
+            box-shadow: var(--box-shadow);
+            font-size: 20px; /* زيادة حجم الخط */
+        }
+
+        .speed-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #speedInput {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 140px;
+            font-size: 18px; /* زيادة حجم الخط */
+        }
+
+        .weather-button {
+            background: var(--secondary-color) !important;
+        }
+
+        .time-picker {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .travel-time {
+            font-size: 1.2em; /* زيادة حجم الخط */
+            color: var(--text-color);
+            margin: 10px 0;
+            text-align: right;
+        }
+
+        .duaa-section {
+            text-align: center;
+            margin: 25px 0;
+            padding: 15px;
+        }
+
+        .wish-text {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 24px; /* زيادة حجم الخط */
+        }
+
+        .marker-close {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .weather-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--card-background);
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 1.2em; /* زيادة حجم الخط */
+            box-shadow: var(--box-shadow);
+        }
+
+        .route-weather {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .route-description {
+            color: var(--text-color);
+            text-align: right;
+            margin: 10px 0;
+            font-size: 1.2em; /* زيادة حجم الخط */
+        }
+
+        .route-line {
+            stroke: red;
+            stroke-width: 4;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .instruction-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 18px; /* زيادة حجم الخط */
+            color: var(--main-color);
+        }
+
+        .time-picker select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: var(--card-background);
+            color: var(--text-color);
+            font-size: 18px; /* زيادة حجم الخط */
+        }
+
+        .time-picker select:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .time-picker select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">⛅ نظام تخطيط السفر الذكي ⛅</div>
+        
+        <button id="mapToggle" class="map-button">🗺️ فتح الخريطة</button>
+        
+        <div id="map"></div>
+        <div id="instructionText" class="instruction-text" style="display: none;">انقر مرتين لتحديد وجهة</div>
+        <button id="confirmBtn" class="map-button" style="display: none; background: var(--secondary-color);">تمت</button>
+        
+        <div class="info-section">
+            <div id="selectedCities" class="info-box" style="display: none;">
+                <h3>الوجهات المختارة:</h3>
+                <p id="selectedCitiesText"></p>
+            </div>
+
+            <div class="info-box">
+                <h3>⏱ قياس الوقت</h3>
+                <div class="speed-container">
+                    <input type="number" id="speedInput" placeholder="السرعة (كم/س)">
+                    <button class="map-button" onclick="calculateTime()">ما المسافة</button>
+                </div>
+                <div id="timeResult" class="travel-time"></div>
+            </div>
+
+            <div class="info-box">
+                <h3>☀️ معلومات الطقس 
+                    <button class="map-button weather-button" onclick="updateWeatherInfo()">ما إلطقس</button>
+                </h3>
+                <div id="weatherInfo"></div>
+                <div id="routeSummary"></div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>⏰ وقت المغادرة</h3>
+            <div class="time-picker">
+                <select id="daySelect" class="map-button" style="padding: 10px 15px;"></select>
+                <select id="hourSelect" class="map-button" style="padding: 10px 15px;"></select>
+                <select id="minuteSelect" class="map-button" style="padding: 10px 15px;"></select>
+            </div>
+        </div>
+
+        <div class="duaa-section">
+            <p class="wish-text">نتمنى لك سفرًا آمنًا ومريحًا</p>
+            <a href="travel.html" class="map-button" style="background: var(--secondary-color);" target="_blank">دعاء السفر أقرأ →</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script>
+        let map;
+        let markers = [];
+        let routeControl = null;
+        const maxMarkers = 2;
+
+        const monthNames = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+            "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+        ];
+
+        const createCustomIcon = (markerId) => {
+            return L.divIcon({
+                className: 'custom-marker',
+                html: `
+                    <div style="position: relative">
+                        <svg viewBox="0 0 32 32" width="32" height="41" style="fill: #ff0000; stroke: #fff; stroke-width: 1.5;">
+                            <path d="M16 1.5c-4.142 0-7.5 3.358-7.5 7.5 0 5.25 7.5 14.5 7.5 14.5s7.5-9.25 7.5-14.5c0-4.142-3.358-7.5-7.5-7.5z"/>
+                        </svg>
+                        <div class="marker-close" data-marker-id="${markerId}">×</div>
+                    </div>
+                `,
+                iconSize: [32, 41],
+                iconAnchor: [16, 41]
+            });
+        };
+
+        async function initMap() {
+            map = L.map('map', {
+                doubleClickZoom: false,
+                touchZoom: true
+            }).setView([32.8872, 13.1913], 6);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            map.on('dblclick', async (e) => {
+                if (markers.length >= maxMarkers) return;
+                
+                try {
+                    const cityName = await getCityName(e.latlng.lat, e.latlng.lng);
+                    const markerId = `marker_${Date.now()}`;
+                    
+                    const marker = L.marker(e.latlng, {
+                        icon: createCustomIcon(markerId)
+                    }).addTo(map);
+
+                    marker.cityName = cityName;
+                    marker.id = markerId;
+                    markers.push(marker);
+                    updateConfirmButton();
+                    
+                    if(markers.length === 2) {
+                        drawShortestPath();
+                    }
+                    
+                    setTimeout(() => setupCloseButton(markerId), 100);
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        function drawShortestPath() {
+            if(routeControl) map.removeControl(routeControl);
+            
+            const waypoints = markers.map(marker => L.latLng(marker.getLatLng().lat, marker.getLatLng().lng));
+            
+            routeControl = L.Routing.control({
+                waypoints: waypoints,
+                routeWhileDragging: true,
+                lineOptions: {
+                    styles: [{color: 'red', opacity: 0.8, weight: 5}]
+                },
+                show: false // إخفاء التعليمات التفصيلية
+            }).addTo(map);
+        }
+
+        async function getCityName(lat, lng) {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+            const data = await response.json();
+            return data.address.city || data.address.town || data.address.village || data.address.county || 'موقع غير معروف';
+        }
+
+        function setupCloseButton(markerId) {
+            const closeBtn = document.querySelector(`[data-marker-id="${markerId}"]`);
+            if (closeBtn) {
+                closeBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const marker = markers.find(m => m.id === markerId);
+                    map.removeLayer(marker);
+                    markers = markers.filter(m => m.id !== markerId);
+                    updateConfirmButton();
+                });
+            }
+        }
+
+        function updateConfirmButton() {
+            const confirmBtn = document.getElementById('confirmBtn');
+            confirmBtn.style.display = markers.length === maxMarkers ? 'block' : 'none';
+        }
+
+        function confirmSelection() {
+            const cities = markers.map(m => m.cityName);
+            const selectedDiv = document.getElementById('selectedCities');
+            document.getElementById('selectedCitiesText').textContent = cities.join(' → ');
+            selectedDiv.style.display = 'block';
+            document.getElementById('confirmBtn').style.display = 'none';
+            toggleMap();
+        }
+
+        async function toggleMap() {
+            const button = document.getElementById('mapToggle');
+            const mapDiv = document.getElementById('map');
+            const instructionText = document.getElementById('instructionText');
+            
+            if (mapDiv.style.display === 'none') {
+                mapDiv.style.display = 'block';
+                instructionText.style.display = 'block';
+                button.textContent = 'اغلاق الخريطة';
+                if (!map) await initMap();
+                markers = [];
+                updateConfirmButton();
+                document.getElementById('selectedCities').style.display = 'none';
+            } else {
+                mapDiv.style.display = 'none';
+                instructionText.style.display = 'none';
+                button.textContent = 'فتح الخريطة';
+                if (map) map.remove();
+                map = null;
+            }
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        async function calculateTime() {
+            if(markers.length < 2) {
+                alert('⚠️ يرجى تحديد وجهتين أولاً');
+                return;
+            }
+
+            const speed = parseFloat(document.getElementById('speedInput').value);
+            if(!speed || speed <= 0) {
+                alert('⚠️ يرجى إدخال سرعة صحيحة');
+                return;
+            }
+
+            const point1 = markers[0].getLatLng();
+            const point2 = markers[1].getLatLng();
+            
+            const distance = calculateDistance(
+                point1.lat, point1.lng,
+                point2.lat, point2.lng
+            );
+
+            const timeHours = distance / speed;
+            const eta = calculateETA(timeHours);
+
+            document.getElementById('timeResult').innerHTML = `
+                ⏳ المسافة: ${distance.toFixed(1)} كم<br>
+                ⏱ الوقت المتوقع: ${formatTime(timeHours)}<br>
+                🕒 وقت الوصول المتوقع: ${eta}
+            `;
+        }
+
+        function formatTime(hours) {
+            const totalMinutes = Math.round(hours * 60);
+            const h = Math.floor(totalMinutes / 60);
+            const m = totalMinutes % 60;
+            return `${h} ساعة و ${m} دقيقة`; // عرض الساعات والدقائق بشكل منفصل
+        }
+
+        function calculateETA(timeHours) {
+            const day = document.getElementById('daySelect').value;
+            const hour = document.getElementById('hourSelect').value;
+            const minute = document.getElementById('minuteSelect').value;
+            
+            const departureTime = new Date(day);
+            departureTime.setHours(hour, minute);
+            const arrivalTime = new Date(departureTime.getTime() + timeHours * 3600000);
+            
+            const hoursArrival = arrivalTime.getHours() % 12 || 12;
+            const minutesArrival = arrivalTime.getMinutes().toString().padStart(2, '0');
+            const ampmArrival = arrivalTime.getHours() >= 12 ? 'مساءً' : 'صباحًا';
+            
+            return `${hoursArrival}:${minutesArrival} ${ampmArrival}`; // عرض الساعات مع "صباحًا" أو "مساءً"
+        }
+
+        async function updateWeatherInfo() {
+            if(markers.length < 2) {
+                alert('⚠️ يرجى تحديد وجهتين أولاً');
+                return;
+            }
+
+            const weatherDiv = document.getElementById('weatherInfo');
+            weatherDiv.innerHTML = '<div class="weather-loading">جاري تحميل بيانات الطقس...</div>';
+
+            try {
+                const point1 = markers[0].getLatLng();
+                const point2 = markers[1].getLatLng();
+                const distance = calculateDistance(point1.lat, point1.lng, point2.lat, point2.lng);
+
+                const steps = Math.ceil(distance / 100); // تقسيم المسافة إلى أجزاء كل 100 كم
+                const weatherData = [];
+
+                for (let i = 0; i < steps; i++) {
+                    const lat = point1.lat + (point2.lat - point1.lat) * (i / steps);
+                    const lng = point1.lng + (point2.lng - point1.lng) * (i / steps);
+                    const data = await getWeatherData({ lat, lng });
+                    weatherData.push(data);
+                }
+
+                const averageTemp = (weatherData.reduce((sum, data) => sum + data.current_weather.temperature, 0) / weatherData.length).toFixed(1);
+                const obstacles = weatherData.filter(data => data.current_weather.weathercode >= 51).map(data => {
+                    return {
+                        type: getWeatherCondition(data.current_weather.weathercode),
+                        distance: Math.round(calculateDistance(point1.lat, point1.lng, data.latitude, data.longitude))
+                    };
+                });
+
+                let summaryText = `
+                    <div class="weather-summary">
+                        <h4>تقييم الطريق:</h4>
+                        <p>🌡 متوسط درجة الحرارة: ${averageTemp}°C</p>
+                `;
+
+                if (obstacles.length > 0) {
+                    summaryText += `<p>⚠️ العوائق:</p><ul>`;
+                    obstacles.forEach(obstacle => {
+                        summaryText += `<li>${obstacle.type} على بعد ${obstacle.distance} كم</li>`;
+                    });
+                    summaryText += `</ul>`;
+                } else {
+                    summaryText += `<p>✅ الطريق آمنة</p>`;
+                }
+
+                summaryText += `</div>`;
+
+                weatherDiv.innerHTML = `
+                    <div class="route-weather">
+                        ${weatherData.map((data, index) => `
+                            <div class="weather-card">
+                                <i class="fas fa-${getWeatherIcon(data.current_weather.weathercode)}"></i>
+                                <div>
+                                    <h4>${index === 0 ? 'بداية الطريق' : index === steps - 1 ? 'نهاية الطريق' : `نقطة ${index * 100} كم`}</h4>
+                                    <div>🌡 ${Math.round(data.current_weather.temperature)}°C</div>
+                                    <div>🌬 ${Math.round(data.current_weather.windspeed)} كم/س</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${summaryText}
+                `;
+            } catch (error) {
+                console.error('خطأ في جلب بيانات الطقس:', error);
+                weatherDiv.innerHTML = '<div class="weather-error">⚠️ فشل في جلب بيانات الطقس</div>';
+            }
+        }
+
+        async function getWeatherData(latlng) {
+            try {
+                const response = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${latlng.lat}&longitude=${latlng.lng}&current_weather=true`
+                );
+                if (!response.ok) {
+                    throw new Error(`خطأ في الاتصال: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('خطأ في جلب بيانات الطقس:', error);
+                throw error;
+            }
+        }
+
+        function getWeatherIcon(weathercode) {
+            const icons = {
+                0: 'sun', // صافي
+                1: 'cloud-sun', // قليل الغيوم
+                2: 'cloud', // غائم جزئيًا
+                3: 'cloud', // غائم
+                45: 'smog', // ضباب
+                48: 'smog', // ضباب جليدي
+                51: 'cloud-rain', // رذاذ خفيف
+                53: 'cloud-rain', // رذاذ متوسط
+                55: 'cloud-rain', // رذاذ كثيف
+                56: 'cloud-rain', // رذاذ جليدي خفيف
+                57: 'cloud-rain', // رذاذ جليدي كثيف
+                61: 'cloud-rain', // مطر خفيف
+                63: 'cloud-rain', // مطر متوسط
+                65: 'cloud-rain', // مطر غزير
+                66: 'cloud-rain', // مطر جليدي خفيف
+                67: 'cloud-rain', // مطر جليدي غزير
+                71: 'snowflake', // ثلج خفيف
+                73: 'snowflake', // ثلج متوسط
+                75: 'snowflake', // ثلج غزير
+                77: 'snowflake', // حبيبات ثلج
+                80: 'cloud-showers-heavy', // زخات مطر خفيفة
+                81: 'cloud-showers-heavy', // زخات مطر متوسطة
+                82: 'cloud-showers-heavy', // زخات مطر غزيرة
+                85: 'snowflake', // زخات ثلج خفيفة
+                86: 'snowflake', // زخات ثلج غزيرة
+                95: 'bolt', // عاصفة رعدية خفيفة
+                96: 'bolt', // عاصفة رعدية مع برد خفيف
+                99: 'bolt', // عاصفة رعدية مع برد غزير
+            };
+            return icons[weathercode] || 'temperature-high';
+        }
+
+        function getWeatherCondition(weathercode) {
+            const conditions = {
+                0: 'صافي',
+                1: 'قليل الغيوم',
+                2: 'غائم جزئيًا',
+                3: 'غائم',
+                45: 'ضباب',
+                48: 'ضباب جليدي',
+                51: 'رذاذ خفيف',
+                53: 'رذاذ متوسط',
+                55: 'رذاذ كثيف',
+                56: 'رذاذ جليدي خفيف',
+                57: 'رذاذ جليدي كثيف',
+                61: 'مطر خفيف',
+                63: 'مطر متوسط',
+                65: 'مطر غزير',
+                66: 'مطر جليدي خفيف',
+                67: 'مطر جليدي غزير',
+                71: 'ثلج خفيف',
+                73: 'ثلج متوسط',
+                75: 'ثلج غزير',
+                77: 'حبيبات ثلج',
+                80: 'زخات مطر خفيفة',
+                81: 'زخات مطر متوسطة',
+                82: 'زخات مطر غزيرة',
+                85: 'زخات ثلج خفيفة',
+                86: 'زخات ثلج غزيرة',
+                95: 'عاصفة رعدية خفيفة',
+                96: 'عاصفة رعدية مع برد خفيف',
+                99: 'عاصفة رعدية مع برد غزير',
+            };
+            return conditions[weathercode] || 'غير معروف';
+        }
+
+        function populateDatePicker() {
+            const daySelect = document.getElementById('daySelect');
+            const hourSelect = document.getElementById('hourSelect');
+            const minuteSelect = document.getElementById('minuteSelect');
+
+            // تعبئة الأيام
+            for (let i = 0; i <= 30; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() + i);
+                const option = document.createElement('option');
+                option.value = date.toISOString().split('T')[0];
+                option.text = `${date.getDate()} ${monthNames[date.getMonth()]}`;
+                daySelect.appendChild(option);
+            }
+
+            // تعبئة الساعات
+            for (let h = 0; h < 24; h++) {
+                const option = document.createElement('option');
+                const hour = h % 12 || 12;
+                const ampm = h >= 12 ? 'مساءً' : 'صباحًا';
+                option.value = h;
+                option.text = `${hour} ${ampm}`;
+                hourSelect.appendChild(option);
+            }
+
+            // تعبئة الدقائق
+            for (let m = 0; m < 60; m += 15) {
+                const option = document.createElement('option');
+                option.value = m;
+                option.text = `${m.toString().padStart(2, '0')}`;
+                minuteSelect.appendChild(option);
+            }
+
+            const now = new Date();
+            daySelect.value = now.toISOString().split('T')[0];
+            hourSelect.value = now.getHours();
+            minuteSelect.value = Math.floor(now.getMinutes() / 15) * 15;
+        }
+
+        window.onload = () => {
+            populateDatePicker();
+            document.getElementById('mapToggle').addEventListener('click', toggleMap);
+            document.getElementById('confirmBtn').addEventListener('click', confirmSelection);
+        };
+    </script>
+</body>
+</html>
