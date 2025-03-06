@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الجنوب الشرقي لليبيا - الدليل السياحي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a3a, #2c4a6b);
+            color: white;
+        }
+
+        .services-btn {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: #e67e22;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .services-btn:hover {
+            background: #d35400;
+            transform: translateY(-3px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a2a3a, #2c4a6b);
+            color: white;
+            padding: 4rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: -10%;
+            width: 120%;
+            height: 100px;
+            background: #fff;
+            transform: rotate(-3deg);
+        }
+
+        .main-container {
+            max-width: 1300px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .city-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .city-section:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.15);
+        }
+
+        h2 {
+            color: #1a2a3a;
+            margin-bottom: 2.5rem;
+            font-size: 2.5rem;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 90%;
+            background: #2c4a6b;
+            border-radius: 5px;
+        }
+
+        .city-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .landmark-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            border: 3px solid transparent;
+            margin-bottom: 1.5rem;
+            min-height: 200px; /* تحديد ارتفاع ثابت للصناديق */
+        }
+
+        .landmark-card:hover {
+            border-color: #2c4a6b;
+            background: #f8faff;
+        }
+
+        .landmark-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #2c4a6b, #1a2a3a);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .landmark-card:hover::before {
+            opacity: 1;
+        }
+
+        .landmark-name {
+            color: #1a2a3a;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .city-name {
+            color: #4a5568;
+            font-size: 1.1rem;
+            background: #e2e8f0;
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            display: inline-block;
+        }
+
+        .landmark-notes {
+            color: #4a5568;
+            font-size: 1rem;
+            margin-top: 1rem;
+            font-style: italic;
+            line-height: 1.6;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* تحديد عدد الأسطر للعرض */
+            -webkit-box-orient: vertical;
+        }
+
+        footer {
+            background: #1a2a3a;
+            color: white;
+            text-align: center;
+            padding: 3rem;
+            margin-top: 6rem;
+            clip-path: polygon(0 25%, 100% 0, 100% 100%, 0 100%);
+            padding-top: 4rem;
+        }
+
+        .hidden-landmarks {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.6s ease-out;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem; /* إضافة تباعد بين الصناديق الظاهرة والمخفية */
+        }
+
+        .show-more-btn {
+            background: #2c4a6b;
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 30px;
+            margin-top: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 1.1rem;
+        }
+
+        .show-more-btn:hover {
+            background: #1a2a3a;
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 768px) {
+            .city-grid {
+                grid-template-columns: 1fr;
+            }
+            h2 {
+                font-size: 2rem;
+            }
+            .header {
+                padding: 3rem 1rem;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a href="details5.html" class="services-btn">الخدمات</a>
+
+    <header class="header">
+        <h1>الصحراء الليبية الشرقية</h1>
+        <p>استكشف الجمال الخفي في الجنوب الشرقي: واحات، آثار، وطبيعة ساحرة</p>
+    </header>
+
+    <main class="main-container">
+        <!-- الكفرة -->
+        <section class="city-section">
+            <h2>الكفرة</h2>
+            <div class="city-grid">
+                <!-- المعالم الظاهرة -->
+                <div class="landmark-card" onclick="selectLandmark('واحة الكفرة / الكفرة')">
+                    <div class="landmark-name">واحة الكفرة</div>
+                    <div class="city-name">الكفرة</div>
+                    <p class="landmark-desc">واحة طبيعية كبيرة تشتهر بمناظرها الخلابة وأشجار النخيل.</p>
+                    <p class="landmark-notes">مكان مثالي للتخييم والاسترخاء.</p>
+                </div>
+
+                <div class="landmark-card" onclick="selectLandmark('بحيرة الكفرة / الكفرة')">
+                    <div class="landmark-name">بحيرة الكفرة</div>
+                    <div class="city-name">الكفرة</div>
+                    <p class="landmark-desc">بحيرة طبيعية تُعتبر وجهة للسياحة البيئية.</p>
+                    <p class="landmark-notes">مكان رائع لرصد الطيور.</p>
+                </div>
+
+                <!-- المعالم المخفية -->
+                <div class="hidden-landmarks">
+                    <div class="landmark-card" onclick="selectLandmark('جبل العوينات / الكفرة')">
+                        <div class="landmark-name">جبل العوينات</div>
+                        <div class="city-name">الكفرة</div>
+                        <p class="landmark-desc">جبل يقع على الحدود الليبية المصرية السودانية، يتميز بتكوينات صخرية فريدة.</p>
+                        <p class="landmark-notes">وجهة لمتسلقي الجبال وعشاق الجيولوجيا.</p>
+                    </div>
+
+                    <div class="landmark-card" onclick="selectLandmark('قصر الزاوية / الكفرة')">
+                        <div class="landmark-name">قصر الزاوية</div>
+                        <div class="city-name">الكفرة</div>
+                        <p class="landmark-desc">مبنى تاريخي كان مركزًا دينيًا وتعليميًا.</p>
+                        <p class="landmark-notes">يعود للقرن التاسع عشر.</p>
+                    </div>
+                </div>
+            </div>
+            <button class="show-more-btn" onclick="toggleHidden(this)">اكتشف المزيد ▼</button>
+        </section>
+
+        <!-- الجغبوب -->
+        <section class="city-section">
+            <h2>الجغبوب</h2>
+            <div class="city-grid">
+                <!-- المعالم الظاهرة -->
+                <div class="landmark-card" onclick="selectLandmark('واحة الجغبوب / الجغبوب')">
+                    <div class="landmark-name">واحة الجغبوب</div>
+                    <div class="city-name">الجغبوب</div>
+                    <p class="landmark-desc">واحة صغيرة تتميز بمناظرها الطبيعية الهادئة.</p>
+                    <p class="landmark-notes">مكان مثالي للاسترخاء.</p>
+                </div>
+
+                <!-- المعالم المخفية -->
+                <div class="hidden-landmarks">
+                    <div class="landmark-card" onclick="selectLandmark('مزارع التمور / الجغبوب')">
+                        <div class="landmark-name">مزارع التمور</div>
+                        <div class="city-name">الجغبوب</div>
+                        <p class="landmark-desc">مناطق زراعية تُنتج أجود أنواع التمور في ليبيا.</p>
+                        <p class="landmark-notes">يمكن تنظيم جولات استكشافية خلال موسم الحصاد.</p>
+                    </div>
+
+                    <div class="landmark-card" onclick="selectLandmark('بئر برقو / الجغبوب')">
+                        <div class="landmark-name">بئر برقو</div>
+                        <div class="city-name">الجغبوب</div>
+                        <p class="landmark-desc">بئر ماء تاريخي كان محطة لقوافل التجارة القديمة.</p>
+                        <p class="landmark-notes">يُعتقد أن عمره يتجاوز 500 عام.</p>
+                    </div>
+
+                    <div class="landmark-card" onclick="selectLandmark('واحة المغاسل / الجغبوب')">
+                        <div class="landmark-name">واحة المغاسل</div>
+                        <div class="city-name">الجغبوب</div>
+                        <p class="landmark-desc">منطقة صغيرة داخل واحة الجغبوب تشتهر بمياهها العذبة.</p>
+                        <p class="landmark-notes">مكان مثالي للراحة خلال رحلات الصحراء.</p>
+                    </div>
+                </div>
+            </div>
+            <button class="show-more-btn" onclick="toggleHidden(this)">اكتشف المزيد ▼</button>
+        </section>
+
+        <!-- أوجلة -->
+        <section class="city-section">
+            <h2>أوجلة</h2>
+            <div class="city-grid">
+                <!-- المعالم الظاهرة -->
+                <div class="landmark-card" onclick="selectLandmark('واحة أوجلة / أوجلة')">
+                    <div class="landmark-name">واحة أوجلة</div>
+                    <div class="city-name">أوجلة</div>
+                    <p class="landmark-desc">واحة خضراء تُعتبر من أجمل الواحات في الجنوب الشرقي.</p>
+                    <p class="landmark-notes">مكان مثالي للتخييم.</p>
+                </div>
+
+                <!-- المعالم المخفية -->
+                <div class="hidden-landmarks">
+                    <div class="landmark-card" onclick="selectLandmark('سوق أوجلة القديم / أوجلة')">
+                        <div class="landmark-name">سوق أوجلة القديم</div>
+                        <div class="city-name">أوجلة</div>
+                        <p class="landmark-desc">سوق تقليدي لبيع المنتجات المحلية مثل الأقمشة والفخار.</p>
+                        <p class="landmark-notes">يُنظم سوق أسبوعي كل يوم خميس.</p>
+                    </div>
+
+                    <div class="landmark-card" onclick="selectLandmark('مسجد الشيخ عبدالسلام الأسمر / أوجلة')">
+                        <div class="landmark-name">مسجد الشيخ عبدالسلام الأسمر</div>
+                        <div class="city-name">أوجلة</div>
+                        <p class="landmark-desc">مسجد تاريخي يعود للعصر العثماني.</p>
+                        <p class="landmark-notes">يتميز بعمارة إسلامية فريدة.</p>
+                    </div>
+
+                    <div class="landmark-card" onclick="selectLandmark('منطقة الرملة البيضاء / أوجلة')">
+                        <div class="landmark-name">منطقة الرملة البيضاء</div>
+                        <div class="city-name">أوجلة</div>
+                        <p class="landmark-desc">مساحة صحراوية ذات رمال ناصعة البياض، تشبه المناظر القطبية.</p>
+                        <p class="landmark-notes">موقع شهير لتصوير الأفلام الوثائقية.</p>
+                    </div>
+                </div>
+            </div>
+            <button class="show-more-btn" onclick="toggleHidden(this)">اكتشف المزيد ▼</button>
+        </section>
+
+        <!-- جالو -->
+        <section class="city-section">
+            <h2>جالو</h2>
+            <div class="city-grid">
+                <!-- المعالم الظاهرة -->
+                <div class="landmark-card" onclick="selectLandmark('واحة جالو / جالو')">
+                    <div class="landmark-name">واحة جالو</div>
+                    <div class="city-name">جالو</div>
+                    <p class="landmark-desc">واحة طبيعية تُعتبر بوابة الصحراء الشرقية.</p>
+                    <p class="landmark-notes">مكان مثالي لاستكشاف الطبيعة الصحراوية.</p>
+                </div>
+
+                <!-- المعالم المخفية -->
+                <div class="hidden-landmarks">
+                    <div class="landmark-card" onclick="selectLandmark('قلعة جالو القديمة / جالو')">
+                        <div class="landmark-name">قلعة جالو القديمة</div>
+                        <div class="city-name">جالو</div>
+                        <p class="landmark-desc">بقايا حصن تاريخي يعود للعصر العثماني.</p>
+                        <p class="landmark-notes">مكان رائع لعشاق التاريخ.</p>
+                    </div>
+
+                    <div class="landmark-card" onclick="selectLandmark('محمية وادي الحياة / جالو')">
+                        <div class="landmark-name">محمية وادي الحياة</div>
+                        <div class="city-name">جالو</div>
+                        <p class="landmark-desc">وادي طبيعي يربط بين عدة قرى في الجنوب الشرقي.</p>
+                        <p class="landmark-notes">مكان مثالي لرحلة سفاري.</p>
+                    </div>
+                </div>
+            </div>
+            <button class="show-more-btn" onclick="toggleHidden(this)">اكتشف المزيد ▼</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 الدليل السياحي لليبيا - جميع الحقوق محفوظة</p>
+        <p>نحب تراثنا ❤️</p>
+    </footer>
+
+    <script>
+        function selectLandmark(fullName) {
+            localStorage.setItem('selectedLandmark', fullName);
+            window.location.href = 'details5.html';
+        }
+
+        function toggleHidden(btn) {
+            const section = btn.closest('.city-section');
+            const hiddenDiv = section.querySelector('.hidden-landmarks');
+            const isExpanded = hiddenDiv.style.maxHeight;
+
+            hiddenDiv.style.maxHeight = isExpanded ? null : hiddenDiv.scrollHeight + 'px';
+            btn.innerHTML = isExpanded ? 'اكتشف المزيد ▼' : 'عرض أقل ▲';
+        }
+    </script>
+</body>
+</html>
